@@ -1,7 +1,8 @@
-from http import HTTPStatus
-
 import pytest
 from pytest_django.asserts import assertRedirects
+from pytest_lazyfixture import lazy_fixture as ls
+
+from news.pytest_tests.conftest import STATUS_CODE_200, STATUS_CODE_404
 
 pytestmark = pytest.mark.django_db
 
@@ -10,48 +11,49 @@ pytestmark = pytest.mark.django_db
     ('url', 'parametrized_client', 'status'),
     (
         (
-            pytest.lazy_fixture('url_home_news'),
-            pytest.lazy_fixture('client'),
-            HTTPStatus.OK
+            ls('url_home_news'),
+            ls('client'),
+            STATUS_CODE_200
         ),
         (
-            pytest.lazy_fixture('url_detail_news'),
-            pytest.lazy_fixture('client'),
-            HTTPStatus.OK
+            ls('url_detail_news'),
+            ls('client'),
+            STATUS_CODE_200
         ),
         (
-            pytest.lazy_fixture('url_users_login'),
-            pytest.lazy_fixture('client'),
-            HTTPStatus.OK
+            ls('url_users_login'),
+            ls('client'),
+            STATUS_CODE_200
         ),
         (
-            pytest.lazy_fixture('url_users_logout'),
-            pytest.lazy_fixture('client'),
-            HTTPStatus.OK
+            ls('url_users_logout'),
+            ls('client'),
+            STATUS_CODE_200
         ),
         (
-            pytest.lazy_fixture('url_users_signup'),
-            pytest.lazy_fixture('client'),
-            HTTPStatus.OK),
-        (
-            pytest.lazy_fixture('url_edit_comment'),
-            pytest.lazy_fixture('not_author_client'),
-            HTTPStatus.NOT_FOUND
+            ls('url_users_signup'),
+            ls('client'),
+            STATUS_CODE_200
         ),
         (
-            pytest.lazy_fixture('url_delete_comment'),
-            pytest.lazy_fixture('not_author_client'),
-            HTTPStatus.NOT_FOUND
+            ls('url_edit_comment'),
+            ls('not_author_client'),
+            STATUS_CODE_404
         ),
         (
-            pytest.lazy_fixture('url_edit_comment'),
-            pytest.lazy_fixture('author_client'),
-            HTTPStatus.OK
+            ls('url_delete_comment'),
+            ls('not_author_client'),
+            STATUS_CODE_404
         ),
         (
-            pytest.lazy_fixture('url_delete_comment'),
-            pytest.lazy_fixture('author_client'),
-            HTTPStatus.OK
+            ls('url_edit_comment'),
+            ls('author_client'),
+            STATUS_CODE_200
+        ),
+        (
+            ls('url_delete_comment'),
+            ls('author_client'),
+            STATUS_CODE_200
         ),
     )
 )
@@ -62,20 +64,14 @@ def test_page_availability(url, parametrized_client, status):
 
 
 @pytest.mark.parametrize(
-    'url_login',
-    (
-        pytest.lazy_fixture('url_users_login'),
-    )
-)
-@pytest.mark.parametrize(
     'url',
     (
-        pytest.lazy_fixture('url_edit_comment'),
-        pytest.lazy_fixture('url_delete_comment'),
+        ls('url_edit_comment'),
+        ls('url_delete_comment'),
     )
 )
-def test_redirects(client, url_login, url):
+def test_redirects(client, url_users_login, url):
     """Проверка редиректа для анонима."""
-    expected_url = f'{url_login}?next={url}'
+    expected_url = f'{url_users_login}?next={url}'
     response = client.get(url)
     assertRedirects(response, expected_url)

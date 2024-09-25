@@ -1,4 +1,5 @@
 from datetime import timedelta
+from http import HTTPStatus
 
 import pytest
 from django.conf import settings
@@ -7,6 +8,9 @@ from django.urls import reverse
 from django.utils import timezone
 
 from news.models import Comment, News
+
+STATUS_CODE_200 = HTTPStatus.OK
+STATUS_CODE_404 = HTTPStatus.NOT_FOUND
 
 
 @pytest.fixture
@@ -117,13 +121,3 @@ def url_users_signup():
 @pytest.fixture
 def url_to_comments(url_detail_news):
     return url_detail_news + '#comments'
-
-
-@pytest.fixture
-def url_and_object_for_edit_comment(comment):
-    return (comment, reverse('news:edit', args=(comment.id, )))
-
-
-@pytest.fixture
-def url_for_delete_comment(comment):
-    return reverse('news:delete', args=(comment.id, ))

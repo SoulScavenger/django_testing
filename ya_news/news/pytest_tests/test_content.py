@@ -10,8 +10,8 @@ pytestmark = pytest.mark.django_db
 def test_news_count(client, url_home_news):
     """Проверка количества новостей на странице."""
     response = client.get(url_home_news)
-    object_list = response.context['object_list']
-    news_count = object_list.count()
+    news = response.context['object_list']
+    news_count = news.count()
     assert news_count == settings.NEWS_COUNT_ON_HOME_PAGE
 
 

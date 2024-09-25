@@ -1,13 +1,12 @@
 from datetime import timedelta
+
+import pytest
+from django.conf import settings
 from django.urls import reverse
 from django.utils import timezone
-from django.conf import settings
-import pytest
-
 from django.test.client import Client
 
 from news.models import News, Comment
-from news.forms import BAD_WORDS
 
 
 @pytest.fixture
@@ -44,11 +43,6 @@ def news():
 
 
 @pytest.fixture
-def news_id_for_args(news):
-    return (news.id, )
-
-
-@pytest.fixture
 def comment(news, author):
     comment = Comment.objects.create(
         text='Какой-то текст',
@@ -56,11 +50,6 @@ def comment(news, author):
         news=news
     )
     return comment
-
-
-@pytest.fixture
-def comment_id_for_args(comment):
-    return (comment.id, )
 
 
 @pytest.fixture
@@ -80,22 +69,54 @@ def many_news():
 @pytest.fixture
 def many_comments(news, author):
     today = timezone.now()
-    all_comments = [
-        Comment(
-            text='Комментарий {index}',
-            created=today - timedelta(days=index),
-            author=author,
+    for index in range(settings.NEWS_COUNT_ON_HOME_PAGE):
+        comment = Comment.objects.create(
             news=news,
+            author=author,
+            text=f'Комментарий {index}',
         )
-        for index in range(settings.NEWS_COUNT_ON_HOME_PAGE)
-    ]
-    Comment.objects.bulk_create(all_comments)
-    return (news.id, )
+        comment.created = today + timedelta(days=index)
+        comment.save()
+
+
+@pytest.fixture(scope='session')
+def url_home_news():
+    return reverse('news:home')
 
 
 @pytest.fixture
-def url_for_detail_news(news):
+def url_detail_news(news):
     return reverse('news:detail', args=(news.id, ))
+
+
+@pytest.fixture
+def url_edit_comment(comment):
+    return reverse('news:edit', args=(comment.id, ))
+
+
+@pytest.fixture
+def url_delete_comment(comment):
+    return reverse('news:delete', args=(comment.id, ))
+
+
+@pytest.fixture(scope='session')
+def url_users_login():
+    return reverse('users:login')
+
+
+@pytest.fixture(scope='session')
+def url_users_logout():
+    return reverse('users:logout')
+
+
+@pytest.fixture(scope='session')
+def url_users_signup():
+    return reverse('users:signup')
+
+
+@pytest.fixture
+def url_to_comments(url_detail_news):
+    return url_detail_news + '#comments'
 
 
 @pytest.fixture
@@ -106,28 +127,3 @@ def url_and_object_for_edit_comment(comment):
 @pytest.fixture
 def url_for_delete_comment(comment):
     return reverse('news:delete', args=(comment.id, ))
-
-
-@pytest.fixture(scope='session')
-def form_for_create_comment():
-    return {'text': 'Новый комментарий'}
-
-
-@pytest.fixture(scope='session')
-def form_for_edit_comment():
-    return {'text': 'Отредактированный комментарий'}
-
-
-@pytest.fixture(scope='session')
-def form_for_create_comment_with_bad_words():
-    return {'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'}
-
-
-@pytest.fixture(scope='session')
-def url_home():
-    return reverse('news:home')
-
-
-@pytest.fixture
-def url_to_comments(url_for_detail_news):
-    return url_for_detail_news + '#comments'

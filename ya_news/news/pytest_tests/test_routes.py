@@ -1,58 +1,61 @@
+from http import HTTPStatus
+
 import pytest
 from pytest_django.asserts import assertRedirects
-from pytest_lazyfixture import lazy_fixture as ls
-
-from news.pytest_tests.conftest import STATUS_CODE_200, STATUS_CODE_404
+from pytest_lazyfixture import lazy_fixture as lf
 
 pytestmark = pytest.mark.django_db
+
+STATUS_CODE_200 = HTTPStatus.OK
+STATUS_CODE_404 = HTTPStatus.NOT_FOUND
 
 
 @pytest.mark.parametrize(
     ('url', 'parametrized_client', 'status'),
     (
         (
-            ls('url_home_news'),
-            ls('client'),
+            lf('url_home_news'),
+            lf('client'),
             STATUS_CODE_200
         ),
         (
-            ls('url_detail_news'),
-            ls('client'),
+            lf('url_detail_news'),
+            lf('client'),
             STATUS_CODE_200
         ),
         (
-            ls('url_users_login'),
-            ls('client'),
+            lf('url_users_login'),
+            lf('client'),
             STATUS_CODE_200
         ),
         (
-            ls('url_users_logout'),
-            ls('client'),
+            lf('url_users_logout'),
+            lf('client'),
             STATUS_CODE_200
         ),
         (
-            ls('url_users_signup'),
-            ls('client'),
+            lf('url_users_signup'),
+            lf('client'),
             STATUS_CODE_200
         ),
         (
-            ls('url_edit_comment'),
-            ls('not_author_client'),
+            lf('url_edit_comment'),
+            lf('not_author_client'),
             STATUS_CODE_404
         ),
         (
-            ls('url_delete_comment'),
-            ls('not_author_client'),
+            lf('url_delete_comment'),
+            lf('not_author_client'),
             STATUS_CODE_404
         ),
         (
-            ls('url_edit_comment'),
-            ls('author_client'),
+            lf('url_edit_comment'),
+            lf('author_client'),
             STATUS_CODE_200
         ),
         (
-            ls('url_delete_comment'),
-            ls('author_client'),
+            lf('url_delete_comment'),
+            lf('author_client'),
             STATUS_CODE_200
         ),
     )
@@ -66,8 +69,8 @@ def test_page_availability(url, parametrized_client, status):
 @pytest.mark.parametrize(
     'url',
     (
-        ls('url_edit_comment'),
-        ls('url_delete_comment'),
+        lf('url_edit_comment'),
+        lf('url_delete_comment'),
     )
 )
 def test_redirects(client, url_users_login, url):

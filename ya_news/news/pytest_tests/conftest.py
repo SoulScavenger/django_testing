@@ -1,5 +1,4 @@
 from datetime import timedelta
-from http import HTTPStatus
 
 import pytest
 from django.conf import settings
@@ -8,9 +7,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from news.models import Comment, News
-
-STATUS_CODE_200 = HTTPStatus.OK
-STATUS_CODE_404 = HTTPStatus.NOT_FOUND
 
 
 @pytest.fixture

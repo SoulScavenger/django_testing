@@ -1,10 +1,11 @@
+from http import HTTPStatus
+
 import pytest
 from django.contrib.auth import get_user
 from pytest_django.asserts import assertFormError, assertRedirects
 
 from news.forms import BAD_WORDS, WARNING
 from news.models import Comment
-from news.pytest_tests.conftest import STATUS_CODE_404
 
 pytestmark = pytest.mark.django_db
 
@@ -13,6 +14,8 @@ FORM_FOR_EDIT_COMMENT = {'text': 'Отредактированный комме�
 FORM_FOR_CREATE_COMMENT_WITH_BAD_WORDS = {
     'text': f'Какой-то текст, {BAD_WORDS[0]}, еще текст'
 }
+
+STATUS_CODE_404 = HTTPStatus.NOT_FOUND
 
 
 def test_anonymous_user_cant_create_comment(client, url_detail_news):
